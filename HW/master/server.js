@@ -88,15 +88,7 @@ function viewAll() {
 
 function viewByDept() {
 
-    connection.query("SELECT * FROM department", function (err, res) {
-        if (err) throw (err)
-
-        for (var i = 0; i < res.length; i++) {
-            console.log(`
-${res[i].id}. || ${res[i].name}`)
-        }
-    })
-
+  ListDepartments()
     inquirer
         .prompt({
             name: "department",
@@ -123,15 +115,7 @@ _________________________
 
 function viewByManager() {
 
-    connection.query("SELECT * FROM managers", function (err, res) {
-        if (err) throw (err)
-
-        for (var i = 0; i < res.length; i++) {
-            console.log(`
-${res[i].id}. || ${res[i].first_name} ${res[i].last_name}`)
-        }
-    })
-
+listManagers()
     inquirer
         .prompt({
             name: "manager",
@@ -145,6 +129,7 @@ ${res[i].id}. || ${res[i].first_name} ${res[i].last_name}`)
                     console.log(`
 Employee: ${res[i].last_name}, ${res[i].first_name} `)
                 }
+                start();
 
             })
 
@@ -190,17 +175,19 @@ function addEmployee() {
     {
 
         name:"employeeManager",
-        type: "input",
-        message: `Please enter employee's manager number from the list below:
----------
-1. Charles Xavier
-2. Winston Churchill 
-3. John Shaft
-4. Barrett Wallace
-5. Elizabeth Warren
-----------
+        type: "list",
+        message: `Please enter employee's manager number from the list below:`,
+        choices: [
 
-:`
+            "1. Charles Xavier",
+            "2. Winston Churchill", 
+            "3. John Shaft",
+            "4. Barrett Wallace",
+            "5. Elizabeth Warren",
+        ]
+
+
+
 
     }
 
@@ -222,4 +209,82 @@ Added ${answer.employeeFirstName} into the database!`)
 
 
 }// End of Add Employee Function
+
+function updateRole() {
+
+
+       inquirer
+       .prompt([
+           {
+               name:"employeeToEdit",
+               type:"input",
+               message: "Please enter the id number of the employee you'd like to edit"
+            },
+            {
+                name: "departmentToMoveTo",
+                type:"list",
+                message: "Which department would you like to move them to?",
+                choices: [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    ]
+            }
+        ])
+        .then(function(answer){
+            
+            let employeeNumber = parseInt(answer.employeeToEdit)
+            let newDepartment = parseInt(answer.departmentToMoveTo)
+            const query = connection.query(
+                "UPDATE employee SET ? WHERE = ?",
+                [
+                    {
+                        role_id:employeeNumber
+                    },
+                    {id:newDepartment
+                    }
+                ],
+                function(err,res) {
+                    if(err) throw err;
+                    console.log(res.affectedRows + "employees updated!\n")
+                }
+                )
+                
+            })
+            
+      
+    }
+    
+//Utility Functions
+
+function ListDepartments() {
+
+    connection.query("SELECT * FROM department", function (err, res) {
+        if (err) throw (err)
+
+        for (var i = 0; i < res.length; i++) {
+            console.log(`
+${res[i].id}. || ${res[i].name}`)
+        }
+    })
+}
+
+function listManagers() {
+
+    
+    connection.query("SELECT * FROM managers", function (err, res) {
+        if (err) throw (err)
+
+        for (var i = 0; i < res.length; i++) {
+            console.log(`
+${res[i].id}. || ${res[i].first_name} ${res[i].last_name}`)
+        }
+    })
+}
+
+
+
+    
 
